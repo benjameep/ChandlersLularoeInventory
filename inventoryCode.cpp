@@ -90,8 +90,8 @@ int main(){
                 catagoryTotal = 0;
             }
             else {
-                if( access( word.c_str(), F_OK ) != -1 ){
-                    string command = "dir /b \""+word+"\" > temp.txt";
+                if( access( ("..\\" + word).c_str(), F_OK ) != -1 ){
+                    string command = "dir /b \"..\\"+word+"\" > temp.txt"; 
                     system(command.c_str());
                     styleNames.push_back(word);
                     vector<int> numEachSize(8,0);
