@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <sstream>
 using namespace std;
 
 void displaySizes(char type)
@@ -18,7 +19,7 @@ void displaySizes(char type)
         cout << "                                      ";
 }
 
-void displayNumbers(vector<int> & counts)
+void displayNumbers(vector<int> & counts,int price)
 {
     int total = 0;
     for(int i = 0; i < counts.size(); i++){
@@ -29,26 +30,33 @@ void displayNumbers(vector<int> & counts)
         else
             cout << " ";
     }
-    cout << setw(10) << total << endl;
+    cout << setw(10) << total;
+	if(price != 0)
+		cout << "\t$" << total*price << " ($" << price << ")\n";
+	cout << endl;
 }
 
-void displayCatagory(string catagory,vector< vector<int> > & styles,vector<string> & styleNames,char type, int total){
+void displayCatagory(string catagory,vector< vector<int> > & styles,vector<string> & styleNames,vector<int> & stylePrices,char type, int totalItems,int totalValue){
     cout << catagory << setw(14-catagory.size()) << " ";
     displaySizes(type);
-    cout << setw(10) << total << endl;
+    cout << setw(10) << totalItems;
+	if(totalValue)
+		cout << "\t$" << totalValue;
+	cout << endl;
     for(int i = 0; i < styles.size(); i++){
         cout << setw(11) << styleNames[i] << " ";
-        displayNumbers(styles[i]);
+        displayNumbers(styles[i],stylePrices[i]);
     }
     cout << endl;
 }
 
-void countFiles(vector<int> & numEachSize, char & type, int & total)
+void countFiles(vector<int> & numEachSize, char & type, int & totalItems,int price,int & totalValue)
 { 
     string file;
     ifstream tempFile ("temp.txt");
     if (tempFile.is_open())
     {
+		int initTotal = totalItems;
         while ( tempFile >> file )
         {
             if(isalpha(file[0])){
@@ -58,12 +66,13 @@ void countFiles(vector<int> & numEachSize, char & type, int & total)
                         if(isalpha(file[2]) || file[3] == 'X'){
                             // is adult ex. "A_XXS" or "H_3XL"
                             numEachSize[file[0] - 'A']++;
-                            total++;
+                            totalItems++;
                             type = 'A';
                         } else if (isdigit(file[2])){
                             // is leggings ex. "S_01"
-                            numEachSize[0] += atoi(file.substr(2,2).c_str());
-                            total++;
+                            int num = atoi(file.substr(2,2).c_str());
+							numEachSize[0] += num;
+                            totalItems += num;
                             type = 'L';
                         }
                     }
@@ -75,22 +84,23 @@ void countFiles(vector<int> & numEachSize, char & type, int & total)
                     // is leggings
                     numEachSize[0] += num;
                     type = 'L';
-                    total += num;
+                    totalItems += num;
                 } else {
                     if(file[2] == '_' && num%2 == 0){
                         // is kids
                         numEachSize[num/2-1]++;
                         type = 'C';
-                        total++;
+                        totalItems++;
                     } else {
                         // is leggings
                         numEachSize[0] += num;
                         type = 'L';
-                        total += num;
+                        totalItems += num;
                     }
                 }
             }
         }
+		totalValue += (totalItems-initTotal)*price;
         tempFile.close();
     }
     else {
@@ -102,9 +112,10 @@ int main(){
     string word,catagory;
     vector< vector<int> > styles;
     vector<string> styleNames;
+	vector<int> stylePrices;
     char type;
-    int total = 0;
-    int catagoryTotal = 0;
+    int totalItems, catagoryTotal, catagoryValue, totalValue;
+	totalItems = catagoryTotal = catagoryValue = totalValue = 0;
     ifstream foldersFile ("styles.txt");
     if (foldersFile.is_open())
     {
@@ -112,19 +123,28 @@ int main(){
         {
             if(word[0] == '-'){
                 if(catagoryTotal)
-                    displayCatagory(catagory,styles,styleNames,type,catagoryTotal);
+                    displayCatagory(catagory,styles,styleNames,stylePrices,type,catagoryTotal,catagoryValue);
                 catagory = word.substr(1);
                 styles.clear();
                 styleNames.clear();
-                total += catagoryTotal;
-                catagoryTotal = 0;
+				stylePrices.clear();
+                totalItems += catagoryTotal;
+				totalValue += catagoryValue;
+				catagoryTotal = catagoryValue = 0;
             } else if (isalpha(word[0])) {
+                string price;
+                stringstream ss(word);
+                ss >> word >> price;
                 if( access( ("..\\" + word).c_str(), F_OK ) != -1 ){
                     string command = "dir /b \"..\\"+word+"\" > temp.txt"; 
                     system(command.c_str());
                     styleNames.push_back(word);
-                    vector<int> numEachSize(8,0);
-                    countFiles(numEachSize,type,catagoryTotal);
+					if(price[0] == '$')
+	                	stylePrices.push_back(atoi(price.substr(1).c_str()));
+					else
+						stylePrices.push_back(0);
+					vector<int> numEachSize(8,0);
+                    countFiles(numEachSize,type,catagoryTotal,stylePrices.back(),catagoryValue);
                     styles.push_back(numEachSize);
                 }
                 else {
@@ -133,8 +153,8 @@ int main(){
             }
         }
         foldersFile.close();
-        displayCatagory(catagory,styles,styleNames,type,catagoryTotal);
-        cout << "Total: " << total+catagoryTotal << endl;
+        displayCatagory(catagory,styles,styleNames,stylePrices,type,catagoryTotal,catagoryValue);
+        cout << "Total: " << totalItems+catagoryTotal << " $" << totalValue+catagoryValue << endl;
     } else {
         cout << "Couldn't find \"styles.txt\"\n";
     }
