@@ -32,7 +32,7 @@ void displayNumbers(vector<int> & counts,int price)
     }
     cout << setw(10) << total;
 	if(price != 0)
-		cout << "\t$" << total*price << " ($" << price << ")\n";
+		cout << "\t$" << total*price << "\t($" << price << ")";
 	cout << endl;
 }
 
@@ -135,6 +135,10 @@ int main(){
                 string price;
                 stringstream ss(word);
                 ss >> word >> price;
+				if(price[0] && price[0] != '$'){
+					word += ' '+price;
+					ss >> price;
+				}
                 if( access( ("..\\" + word).c_str(), F_OK ) != -1 ){
                     string command = "dir /b \"..\\"+word+"\" > temp.txt"; 
                     system(command.c_str());
