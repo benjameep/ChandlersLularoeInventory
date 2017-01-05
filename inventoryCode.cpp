@@ -135,7 +135,7 @@ int main(){
                 string price;
                 stringstream ss(word);
                 ss >> word >> price;
-				if(price[0] && price[0] != '$'){
+                if(price[0] && isalpha(price[0])){
 					word += ' '+price;
 					ss >> price;
 				}
