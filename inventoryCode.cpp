@@ -8,12 +8,14 @@
 #include <string>
 using namespace std;
 
-void displaySizes(bool adult = true)
+void displaySizes(char type)
 {
-    if(adult)
+    if(type == 'A')
         cout << "XXS   XS    S    M    L   XL  2XL  3XL";
-    else
+    else if(type == 'C')
         cout << "  2    4    6    8   10   12   14     ";
+    else if(type == 'L')
+        cout << "                                      ";
 }
 
 void displayNumbers(vector<int> & counts)
@@ -30,9 +32,9 @@ void displayNumbers(vector<int> & counts)
     cout << setw(10) << total << endl;
 }
 
-void displayCatagory(string type,vector< vector<int> > & styles,vector<string> & styleNames,bool isAdult, int total){
-    cout << type << setw(14-type.size()) << " ";
-    displaySizes(isAdult);
+void displayCatagory(string catagory,vector< vector<int> > & styles,vector<string> & styleNames,char type, int total){
+    cout << catagory << setw(14-catagory.size()) << " ";
+    displaySizes(type);
     cout << setw(10) << total << endl;
     for(int i = 0; i < styles.size(); i++){
         cout << setw(11) << styleNames[i] << " ";
@@ -41,7 +43,7 @@ void displayCatagory(string type,vector< vector<int> > & styles,vector<string> &
     cout << endl;
 }
 
-void countFiles(vector<int> & numEachSize, bool & isAdult, int & total)
+void countFiles(vector<int> & numEachSize, char & type, int & total)
 { 
     string file;
     ifstream tempFile ("temp.txt");
@@ -49,15 +51,44 @@ void countFiles(vector<int> & numEachSize, bool & isAdult, int & total)
     {
         while ( tempFile >> file )
         {
-            string size = file.substr(0,file.find('_'));
-            int kids = (size.size() == 2 ? 10+size[1]-'0' : size[0]-'0');
-            if(size[0]-'A' >= 0 && size[0]-'A' < numEachSize.size()){
-                numEachSize[size[0]-'A']++;
-                total++;
-            } else if(kids%2==0 && kids > 0 && kids <=14){
-                isAdult = false;
-                numEachSize[kids/2-1]++;
-                total++;
+            if(isalpha(file[0])){
+                // need to seperate leggings and adult
+                if(file.size() >= 4){ // just need to check before I access [3]
+                    if(file[1] == '_'){ // and need to get rid of any weirdos
+                        if(isalpha(file[2]) || file[3] == 'X'){
+                            // is adult ex. "A_XXS" or "H_3XL"
+                            numEachSize[file[0] - 'A']++;
+                            total++;
+                            type = 'A';
+                        } else if (isdigit(file[2])){
+                            // is leggings ex. "S_01"
+                            numEachSize[0] += atoi(file.substr(2,2).c_str());
+                            total++;
+                            type = 'L';
+                        }
+                    }
+                }
+            } else if(isdigit(file[0])){
+                // need to seperate leggings and kids
+                int num = atoi(file.substr(0,2).c_str());
+                if(file.size() < 3){
+                    // is leggings
+                    numEachSize[0] += num;
+                    type = 'L';
+                    total += num;
+                } else {
+                    if(file[2] == '_' && num%2 == 0){
+                        // is kids
+                        numEachSize[num/2-1]++;
+                        type = 'C';
+                        total++;
+                    } else {
+                        // is leggings
+                        numEachSize[0] += num;
+                        type = 'L';
+                        total += num;
+                    }
+                }
             }
         }
         tempFile.close();
@@ -68,10 +99,10 @@ void countFiles(vector<int> & numEachSize, bool & isAdult, int & total)
 }
 
 int main(){
-    string word,type;
+    string word,catagory;
     vector< vector<int> > styles;
     vector<string> styleNames;
-    bool isAdult = true;
+    char type;
     int total = 0;
     int catagoryTotal = 0;
     ifstream foldersFile ("styles.txt");
@@ -81,21 +112,19 @@ int main(){
         {
             if(word[0] == '-'){
                 if(catagoryTotal)
-                    displayCatagory(type,styles,styleNames,isAdult,catagoryTotal);
-                type = word.substr(1);
+                    displayCatagory(catagory,styles,styleNames,type,catagoryTotal);
+                catagory = word.substr(1);
                 styles.clear();
                 styleNames.clear();
-                isAdult = true;
                 total += catagoryTotal;
                 catagoryTotal = 0;
-            }
-            else {
+            } else if (isalpha(word[0])) {
                 if( access( ("..\\" + word).c_str(), F_OK ) != -1 ){
                     string command = "dir /b \"..\\"+word+"\" > temp.txt"; 
                     system(command.c_str());
                     styleNames.push_back(word);
                     vector<int> numEachSize(8,0);
-                    countFiles(numEachSize,isAdult,catagoryTotal);
+                    countFiles(numEachSize,type,catagoryTotal);
                     styles.push_back(numEachSize);
                 }
                 else {
@@ -104,7 +133,7 @@ int main(){
             }
         }
         foldersFile.close();
-        displayCatagory(type,styles,styleNames,isAdult,catagoryTotal);
+        displayCatagory(catagory,styles,styleNames,type,catagoryTotal);
         cout << "Total: " << total+catagoryTotal << endl;
     } else {
         cout << "Couldn't find \"styles.txt\"\n";
