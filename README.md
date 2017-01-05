@@ -1,18 +1,16 @@
 # Chandler's Lularoe Inventory
 ### by Benjamin Earl
 
-- Version 1.2 
-- Last Update 1-3-17
+- Version 1.3
+- Last Update 1-5-17
 
 ## Setup
 - Copy the BenzProgram folder into the same folder that contains all the folders of photos
 - Edit the styles.txt file so that it contains all the names of the folders of photos, the output will show which ones it couldn't find
-- Also feel free to edit the catagories (the lines that start with a dash) you can put all the styles into one catagory for all I care. Just know that if the program finds any files that have kid sizes, the entire catagory will be labeled with kids sizes.
+- Also feel free to edit the catagories (the lines that start with a dash) you can put all the styles into one catagory for all I care.
+- Only lines that start with a dash or a letter are read, so do anything else to mark something as a comment
 
 ## Running
 - Open the RunThisOne.cmd file which will open notepad which should have the output
   **OR**
 - You can run the inventoryProgram.exe in command prompt and read the output there
-
-## Note
-- This program uses the first letter to determine which size it is. So all files that start with 'A' are counted as XXS, 'B' is XS and so forth. Kids files are assumed to start with '2' through '14'
