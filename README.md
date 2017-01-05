@@ -1,7 +1,7 @@
 # Chandler's Lularoe Inventory
 ### by Benjamin Earl
 
-- Version 1.3
+- Version 1.4
 - Last Update 1-5-17
 
 ## Setup
