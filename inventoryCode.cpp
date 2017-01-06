@@ -19,7 +19,7 @@ void displaySizes(char type)
         cout << "                                      ";
 }
 
-void displayNumbers(vector<int> & counts,int price)
+void displayNumbers(vector<int> & counts,double price)
 {
     int total = 0;
     for(int i = 0; i < counts.size(); i++){
@@ -36,7 +36,7 @@ void displayNumbers(vector<int> & counts,int price)
 	cout << endl;
 }
 
-void displayCatagory(string catagory,vector< vector<int> > & styles,vector<string> & styleNames,vector<int> & stylePrices,char type, int totalItems,int totalValue){
+void displayCatagory(string catagory,vector< vector<int> > & styles,vector<string> & styleNames,vector<double> & stylePrices,char type, int totalItems,double totalValue){
     cout << catagory << setw(14-catagory.size()) << " ";
     displaySizes(type);
     cout << setw(10) << totalItems;
@@ -50,7 +50,7 @@ void displayCatagory(string catagory,vector< vector<int> > & styles,vector<strin
     cout << endl;
 }
 
-void countFiles(vector<int> & numEachSize, char & type, int & totalItems,int price,int & totalValue)
+void countFiles(vector<int> & numEachSize, char & type, int & totalItems,double price,double & totalValue)
 { 
     string file;
     ifstream tempFile ("temp.txt");
@@ -112,10 +112,12 @@ int main(){
     string word,catagory;
     vector< vector<int> > styles;
     vector<string> styleNames;
-	vector<int> stylePrices;
+	vector<double> stylePrices;
     char type;
-    int totalItems, catagoryTotal, catagoryValue, totalValue;
-	totalItems = catagoryTotal = catagoryValue = totalValue = 0;
+    int totalItems, catagoryTotal;
+    double catagoryValue, totalValue;
+	bool readingPrices = true;
+    totalItems = catagoryTotal = catagoryValue = totalValue = 0;
     ifstream foldersFile ("styles.txt");
     if (foldersFile.is_open())
     {
@@ -139,6 +141,8 @@ int main(){
 					word += ' '+price;
 					ss >> price;
 				}
+                if(!readingPrices)
+                    price = '0';
                 if( access( ("..\\" + word).c_str(), F_OK ) != -1 ){
                     string command = "dir /b \"..\\"+word+"\" > temp.txt"; 
                     system(command.c_str());
@@ -154,11 +158,23 @@ int main(){
                 else {
                     cout << "Couldn't find the \"" << word << "\" folder\n";
                 }
+            } else if (word[0] == '>'){
+                string answer;
+                stringstream ss(word);
+                ss >> answer >> answer >> answer;
+                char letter = toupper(answer[0]);
+                if(letter == 'Y')
+                    readingPrices = true;
+                else if (letter == 'N')
+                    readingPrices = false;
             }
         }
         foldersFile.close();
         displayCatagory(catagory,styles,styleNames,stylePrices,type,catagoryTotal,catagoryValue);
-        cout << "Total: " << totalItems+catagoryTotal << " $" << totalValue+catagoryValue << endl;
+        cout << "Total: " << totalItems+catagoryTotal;
+        if(totalValue+catagoryValue)
+            cout << " $" << totalValue+catagoryValue;
+        cout << endl;
     } else {
         cout << "Couldn't find \"styles.txt\"\n";
     }

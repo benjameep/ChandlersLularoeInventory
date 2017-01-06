@@ -1,8 +1,8 @@
 # Chandler's Lularoe Inventory
 ### by Benjamin Earl
 
-- Version 1.4
-- Last Update 1-5-17
+- Version 1.5
+- Last Update 1-6-17
 
 ## Setup
 - Copy the BenzProgram folder into the same folder that contains all the folders of photos

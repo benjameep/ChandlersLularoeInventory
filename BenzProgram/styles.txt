@@ -1,40 +1,52 @@
+
+> Show_Prices(Y/N)?: Y
+
 -Skirts
-Azure
-Cassie
-Jill
-Lola
-Lucy
-Madison
-Maxi
+Azure       $10
+Cassie      $10
+* Jill		$10
+Lola		$10
+Lucy		$10
+Madison		$10
+Maxi		$10
+
 -Kimonos
-Monroe
-Lindsay
-Joy
-Sarah
+Monroe		$10
+Lindsay		$10
+Joy			$10
+Sarah		$10
+
 -Dresses
-Amelia
-Ana
-Julia
-Nicole
-Carly
+Amelia		$10
+Ana			$10
+Julia		$10
+Nicole		$10
+Carly		$10
+
 -Shirts
-Classic T
-Irma
-Randy
-Patrick
-Perfect T
-Mark
+Classic-T	$10
+Irma		$10
+Randy		$10
+Patrick		$10
+Perfect-T	$10
+Mark		$10
+
 -Bottoms
-Jade
-Jordan
+Jade		$10
+Jordan		$10
+
 -Kids Shirts
-Gracie
-Sloan
-Bianka
--Kids Skirts
-Azure
-Cassie
-Maxi
+Gracie		$10
+Sloan		$10
+Bianka		$10
+
+* -Kids Skirts
+* Azure		$10
+* Cassie	$10
+* Maxi		$10
+
 -Kids Dresses
-Mae
-Adeline
+Mae			$10.5
+Adeline		$10.5
+
+* Not currently used
